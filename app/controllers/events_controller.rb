@@ -2,11 +2,19 @@ class EventsController < ApplicationController
   # GET /events
   # GET /events.json
   def index
+    latitude = params[:lat]
+    longitude = params[:lng]
     @events = Event.all
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @events }
+      if latitude.nil? || longitude.nil?
+        format.json { render json: @events }
+      else
+        @current_coord = Event.new(:latitude => latitude, :longitude => longitude)
+        bounds = Geokit::Bounds.from_point_and_radius(@current_coord, 10)
+        format.json { render json: Event.in_bounds(bounds).all}
+      end
     end
   end
 
