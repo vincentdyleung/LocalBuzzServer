@@ -4,6 +4,7 @@ class EventsController < ApplicationController
   def index
     latitude = params[:lat]
     longitude = params[:lng]
+    time = params[:time]
     @events = Event.all
 
     respond_to do |format|
@@ -13,7 +14,7 @@ class EventsController < ApplicationController
       else
         @current_coord = Event.new(:latitude => latitude, :longitude => longitude)
         bounds = Geokit::Bounds.from_point_and_radius(@current_coord, 10)
-        format.json { render json: Event.in_bounds(bounds).all}
+        format.json { render json: Event.where("start_time <= ? AND end_time >= ?", time, time).in_bounds(bounds).all}
       end
     end
   end
