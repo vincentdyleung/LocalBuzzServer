@@ -43,12 +43,16 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
 
     respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render json: @user, status: :created, location: @user }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @user, status: :created }
+      begin
+        if @user.save
+          format.html { redirect_to @user, notice: 'User was successfully created.' }
+          format.json { render json: @user, status: :created, location: @user }
+        else
+          format.html { render action: "new" }
+          format.json { render json: User.find_by_fb_id(params[:user][:fb_id]), status: :created }
+        end
+      rescue ActiveRecord::RecordNotUnique => e
+        format.json { render json: User.find_by_fb_id(params[:user][:fb_id]) }
       end
     end
   end
