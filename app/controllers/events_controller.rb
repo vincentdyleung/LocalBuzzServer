@@ -7,11 +7,14 @@ class EventsController < ApplicationController
     time = params[:time]
     range = params[:range]
     past = params[:past]
+    owner = params[:owner]
     @events = Event.all
 
     respond_to do |format|
       format.html # index.html.erb
-      if latitude.nil? || longitude.nil?
+      if !owner.nil?
+        format.json { render json: Event.find_all_by_owner(owner)}
+      elsif latitude.nil? || longitude.nil?
         format.json { render json: @events }
       else
         @current_coord = Event.new(:latitude => latitude, :longitude => longitude)
